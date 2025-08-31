@@ -55,6 +55,8 @@ LEVEL_STYLES = {
     "unknown": STYLES["dim"],
 }
 
+LogLevelInt = tp.Literal[0, 10, 20, 30, 40, 50]
+
 LogLevelName = tp.Literal[
     "notset",
     "debug",
@@ -67,25 +69,7 @@ LogLevelName = tp.Literal[
     "crit",
 ]
 
-LogLevelInt = tp.Literal[0, 10, 20, 30, 40, 50]
-
 LogLevel = tp.Literal[LogLevelName, LogLevelInt]
-
-
-def get_level_name(level: LogLevelInt) -> LogLevelName:
-    """Takes a logging level name and returns its integer counterpart."""
-    if level == 10:
-        return "debug"
-    elif level == 20:
-        return "info"
-    elif level == 30:
-        return "warning"
-    elif level == 40:
-        return "error"
-    elif level == 50:
-        return "critical"
-    else:
-        return "notset"
 
 
 def get_level_int(level_name: LogLevelName) -> LogLevelInt:
@@ -102,6 +86,22 @@ def get_level_int(level_name: LogLevelName) -> LogLevelInt:
         return 50
     else:
         return 0  # notset
+
+
+def get_level_name(level: LogLevelInt) -> LogLevelName:
+    """Takes a logging level name and returns its integer counterpart."""
+    if level == 10:
+        return "debug"
+    elif level == 20:
+        return "info"
+    elif level == 30:
+        return "warning"
+    elif level == 40:
+        return "error"
+    elif level == 50:
+        return "critical"
+    else:
+        return "notset"
 
 
 class PrettyLevel:

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "termalogger"
-version = "0.1.0"
+version = "1.0.0"
 description = "A crazy simple way to use Structlog."
 authors = ["Zentheon <zentheon@mailbox.org>"]
 homepage = "https://github.com/zentheon/termalogger"
