@@ -1,0 +1,92 @@
+name: Publish
+
+# This workflow has two jobs:
+# pypi-publish:
+#   Sets up a python build env with poetry, runs tests and publishes to PyPI.
+#   Also uploads built artifacts for other jobs.
+# github-publish:
+#   Fetches build-artifact and checks out CHANGELOG.md. Retrieves the changelog
+#   relating to the pushed tag and creates a new release with those inputs.
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+permissions:
+  contents: read
+
+jobs:
+  pypi-publish:
+    name: Build, test and publish package
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/termalogger/
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          virtualenvs-path: venv
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Run tests
+        run: poetry run pytest
+
+      - name: Package project
+        run: poetry build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: |
+            dist/
+            CHANGELOG.md
+
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+  github-release:
+    needs: pypi-publish
+    runs-on: ubuntu-latest
+    name: Create Github release
+    permissions:
+      contents: write
+    steps:
+      - name: Retrieve built package
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact
+
+      - name: Extract changelog notes
+        id: get_release_body
+        # The syntax for setting outputs seems to be very picky,
+        # so the boilerplate does serve a purpose.
+        run: |
+          EXTRACTED_LOG=$(awk '/^## ${{ github.ref_name }}/ {flag=1; next} /^- - -/ {flag=0} flag' CHANGELOG.md)
+          GITHUB_VARIABLE="RELEASE_BODY=$EXTRACTED_LOG"
+          echo $GITHUB_VARIABLE >> $GITHUB_OUTPUT
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          body: ${{ steps.get_release_body.outputs.RELEASE_BODY }}
+          files: |
+            CHANGELOG.md
+            dist/*.gz
+            dist/*.whl
