@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "termalogger"
+version = "0.1.0"
+description = "A crazy simple way to use Structlog."
+authors = ["Zentheon <zentheon@mailbox.org>"]
+homepage = "https://github.com/zentheon/termalogger"
+license = "GPL-3.0"
+readme = "README.md"
+include = []
+
+[tool.poetry.dependencies]
+python = "^3.12"
+structlog = "^25.4.0"
+orjson = "^3.11.3"
+
+[tool.poetry.group.pretty.dependencies]
+colorama = "^0.4.6"
+rich = "^14.1.0"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.4.1"
+
+[tool.ruff]
+# Default of 88 is a little low.
+line-length = 100
+
+[tool.pyright]
+venv = "venv"
+include = ["termalogger", "tests"]
+
+[build-system]
+requires = ["poetry"]
+build-backend = "poetry.masonry.api"
